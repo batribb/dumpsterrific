@@ -1,0 +1,31 @@
+{
+  "business": {
+    "name": "Dumpsterrific",
+    "phone": "(816) 237-0629",
+    "email": "",
+    "website": "https://dumpsterrificnwmo.com",
+    "serviceArea": "Northwest Missouri",
+    "veteranOwned": true
+  },
+  "branding": {
+    "primaryColor": "#89bb27",
+    "logo": "Web/Dumpsterrific Logo.png",
+    "logoBlack": "Web/Dumpsterrific Logo B.png",
+    "logoWhite": "Web/Dumpsterrific Logo W.png",
+    "miniLogo": "Web/Mini Logo.png"
+  },
+  "hours": {
+    "Monday": "8:00 AM \u2013 5:00 PM",
+    "Tuesday": "8:00 AM \u2013 5:00 PM",
+    "Wednesday": "8:00 AM \u2013 5:00 PM",
+    "Thursday": "8:00 AM \u2013 5:00 PM",
+    "Friday": "8:00 AM \u2013 5:00 PM",
+    "Saturday": "Delivery & pickup available for an extra fee",
+    "Sunday": "Closed"
+  },
+  "socials": {
+    "facebook": "https://www.facebook.com/people/Dumpsterrific/61567362545169/",
+    "instagram": "",
+    "tiktok": ""
+  }
+}
