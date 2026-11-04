@@ -13,9 +13,11 @@
     <link rel="stylesheet" href="css/style.css">
 
     <style>
-        [hidden] { display: none !important; }
+        [hidden] {
+            display: none !important;
+        }
 
-        /* SIMPLIFIED NAVBAR */
+        /* NAVIGATION */
         .site-header {
             display: flex;
             align-items: center;
@@ -28,7 +30,6 @@
         .site-header .brand {
             display: flex;
             align-items: center;
-            justify-content: flex-start;
             width: clamp(180px, 28vw, 320px);
             height: 100%;
             flex-shrink: 1;
@@ -43,9 +44,11 @@
             object-position: left center;
         }
 
-        .site-header > .button { flex-shrink: 0; }
+        .site-header > .button {
+            flex-shrink: 0;
+        }
 
-        /* FORM PROGRESS */
+        /* PROGRESS */
         .wizard-progress {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -63,7 +66,6 @@
             background: rgba(255,255,255,.12);
             border-radius: 20px;
             margin-bottom: 9px;
-            transition: background .2s;
         }
 
         .wizard-progress-item.active .wizard-progress-bar,
@@ -90,6 +92,7 @@
                 opacity: 0;
                 transform: translateY(8px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -106,7 +109,7 @@
             margin-bottom: 28px;
         }
 
-        /* SERVICE OPTIONS */
+        /* SERVICE SELECTION */
         .service-options {
             display: grid;
             gap: 14px;
@@ -176,7 +179,7 @@
             margin-top: 24px;
         }
 
-        /* DELIVERY TIME */
+        /* TIME WINDOW */
         .wizard-time-options {
             display: flex;
             flex-direction: column;
@@ -206,7 +209,7 @@
             accent-color: var(--green, #89bb27);
         }
 
-        /* REQUEST REVIEW */
+        /* REVIEW */
         .wizard-summary {
             background: #151a12;
             border: 1px solid rgba(255,255,255,.13);
@@ -233,18 +236,14 @@
             border-bottom: 0;
         }
 
-        .wizard-summary-row span { color: #aeb5a8; }
+        .wizard-summary-row span {
+            color: #aeb5a8;
+        }
 
         .wizard-summary-row strong {
             text-align: right;
             overflow-wrap: anywhere;
             max-width: 65%;
-        }
-
-        .wizard-alert {
-            color: #ff9b91;
-            font-size: .87rem;
-            margin-top: 15px;
         }
 
         .wizard-success {
@@ -286,7 +285,9 @@
         }
 
         @media (max-width: 600px) {
-            .service-option { padding: 17px; }
+            .service-option {
+                padding: 17px;
+            }
 
             .wizard-progress-item span {
                 font-size: .63rem;
@@ -297,7 +298,9 @@
                 min-width: 0;
             }
 
-            .wizard-summary { padding: 17px; }
+            .wizard-summary {
+                padding: 17px;
+            }
 
             .wizard-summary-row {
                 flex-direction: column;
@@ -338,6 +341,7 @@
 
         <!-- PAGE HEADER -->
         <section class="page-hero">
+
             <div class="container">
 
                 <p class="eyebrow">
@@ -345,7 +349,8 @@
                 </p>
 
                 <h1>
-                    Request <span class="accent">Service.</span>
+                    Request
+                    <span class="accent">Service.</span>
                 </h1>
 
                 <p>
@@ -354,6 +359,7 @@
                 </p>
 
             </div>
+
         </section>
 
 
@@ -365,7 +371,9 @@
                 <!-- LEFT INFORMATION -->
                 <div>
 
-                    <p class="eyebrow">GET STARTED</p>
+                    <p class="eyebrow">
+                        GET STARTED
+                    </p>
 
                     <h2>
                         Let's get your
@@ -385,6 +393,7 @@
                         pricing, and scheduling.
                     </p>
 
+
                     <!-- CALL OR TEXT -->
                     <div class="contact-method"
                          style="margin-top:30px;">
@@ -393,7 +402,9 @@
                             PREFER TO CALL OR TEXT?
                         </p>
 
-                        <h3>Get in touch directly.</h3>
+                        <h3>
+                            Get in touch directly.
+                        </h3>
 
                         <a href="tel:+18162370629"
                            data-phone-link
@@ -411,7 +422,8 @@
 
                     </div>
 
-                    <!-- BUSINESS HOURS -->
+
+                    <!-- HOURS -->
                     <div class="hours-card"
                          style="margin-top:24px;">
 
@@ -426,7 +438,7 @@
                 </div>
 
 
-                <!-- FORM COLUMN -->
+                <!-- RIGHT FORM COLUMN -->
                 <div>
 
                     <form
@@ -436,8 +448,9 @@
                         method="POST"
                     >
 
-                        <!-- HONEYPOT -->
+                        <!-- ANTI-SPAM HONEYPOT -->
                         <div hidden aria-hidden="true">
+
                             <label for="websiteField">
                                 Leave this blank
                             </label>
@@ -447,34 +460,40 @@
                                 type="text"
                                 name="_gotcha"
                                 tabindex="-1"
-                                autocomplete="off">
+                                autocomplete="off"
+                            >
+
                         </div>
 
 
-                        <!-- PROGRESS -->
+                        <!-- PROGRESS BAR -->
                         <div class="wizard-progress"
                              aria-label="Form progress">
 
                             <div class="wizard-progress-item active"
                                  data-progress="0">
+
                                 <div class="wizard-progress-bar"></div>
                                 <span>Service</span>
                             </div>
 
                             <div class="wizard-progress-item"
                                  data-progress="1">
+
                                 <div class="wizard-progress-bar"></div>
                                 <span>Contact</span>
                             </div>
 
                             <div class="wizard-progress-item"
                                  data-progress="2">
+
                                 <div class="wizard-progress-bar"></div>
                                 <span>Details</span>
                             </div>
 
                             <div class="wizard-progress-item"
                                  data-progress="3">
+
                                 <div class="wizard-progress-bar"></div>
                                 <span>Submit</span>
                             </div>
@@ -483,9 +502,12 @@
 
 
                         <!-- STEP 1: SERVICE -->
-                        <div class="wizard-step" data-step="0">
+                        <div class="wizard-step"
+                             data-step="0">
 
-                            <p class="eyebrow">STEP 01</p>
+                            <p class="eyebrow">
+                                STEP 01
+                            </p>
 
                             <h2 class="wizard-title">
                                 Select your service.
@@ -495,35 +517,53 @@
                                 What can Dumpsterrific help you with?
                             </p>
 
+
                             <div class="service-options">
 
+                                <!-- DUMPSTER -->
                                 <label class="service-option">
+
                                     <input type="radio"
                                            name="service_type"
                                            value="dumpster"
                                            required>
 
                                     <span class="service-option-content">
-                                        <strong>Dumpster Rental</strong>
+
+                                        <strong>
+                                            Dumpster Rental
+                                        </strong>
+
                                         <small>
                                             18, 24, or 30 yard dumpsters
-                                            for your project.
+                                            starting at
+                                            <span data-price="dumpsters.18">—</span>.
                                         </small>
+
                                     </span>
                                 </label>
 
+
+                                <!-- TRASH PICKUP -->
                                 <label class="service-option">
+
                                     <input type="radio"
                                            name="service_type"
                                            value="trash"
                                            required>
 
                                     <span class="service-option-content">
-                                        <strong>Weekly Trash Pickup</strong>
+
+                                        <strong>
+                                            Weekly Trash Pickup
+                                        </strong>
+
                                         <small>
-                                            $30/month · Tuesday pickup ·
+                                            <span data-price="trashService.monthly">—</span>/month
+                                            · Tuesday pickup ·
                                             Rural Braymer–Cowgill area
                                         </small>
+
                                     </span>
                                 </label>
 
@@ -537,7 +577,9 @@
                              data-step="1"
                              hidden>
 
-                            <p class="eyebrow">STEP 02</p>
+                            <p class="eyebrow">
+                                STEP 02
+                            </p>
 
                             <h2 class="wizard-title">
                                 Contact information.
@@ -547,7 +589,9 @@
                                 How can we reach you about your request?
                             </p>
 
+
                             <div class="field">
+
                                 <label for="customerName">
                                     Full Name *
                                 </label>
@@ -559,9 +603,12 @@
                                        placeholder="John Smith"
                                        maxlength="120"
                                        required>
+
                             </div>
 
+
                             <div class="field">
+
                                 <label for="customerPhone">
                                     Phone Number *
                                 </label>
@@ -573,9 +620,12 @@
                                        placeholder="(816) 555-0123"
                                        maxlength="30"
                                        required>
+
                             </div>
 
+
                             <div class="field">
+
                                 <label for="customerEmail">
                                     Email Address *
                                 </label>
@@ -587,6 +637,7 @@
                                        placeholder="you@example.com"
                                        maxlength="254"
                                        required>
+
                             </div>
 
                         </div>
@@ -597,7 +648,9 @@
                              data-step="2"
                              hidden>
 
-                            <p class="eyebrow">STEP 03</p>
+                            <p class="eyebrow">
+                                STEP 03
+                            </p>
 
                             <h2 class="wizard-title">
                                 Service details.
@@ -608,8 +661,10 @@
                                 Then tell us a few more details.
                             </p>
 
-                            <!-- ADDRESS -->
+
+                            <!-- COMMON ADDRESS -->
                             <div class="field">
+
                                 <label for="deliveryAddress">
                                     Street Address *
                                 </label>
@@ -621,11 +676,14 @@
                                        placeholder="Street address"
                                        maxlength="200"
                                        required>
+
                             </div>
+
 
                             <div class="field-row">
 
                                 <div class="field">
+
                                     <label for="deliveryCity">
                                         City *
                                     </label>
@@ -636,9 +694,12 @@
                                            placeholder="City"
                                            maxlength="100"
                                            required>
+
                                 </div>
 
+
                                 <div class="field">
+
                                     <label for="deliveryZip">
                                         ZIP Code *
                                     </label>
@@ -652,12 +713,13 @@
                                            title="Enter a valid ZIP code"
                                            maxlength="10"
                                            required>
+
                                 </div>
 
                             </div>
 
 
-                            <!-- DUMPSTER RENTAL -->
+                            <!-- DUMPSTER RENTAL FIELDS -->
                             <div id="dumpsterFields"
                                  class="wizard-service-panel"
                                  hidden>
@@ -666,7 +728,10 @@
                                     DUMPSTER RENTAL
                                 </p>
 
+
+                                <!-- DUMPSTER SIZE -->
                                 <div class="field">
+
                                     <label for="dumpster">
                                         Dumpster Size *
                                     </label>
@@ -674,44 +739,65 @@
                                     <select id="dumpster"
                                             name="dumpster"
                                             required>
+
                                         <option value="">
                                             Select size
                                         </option>
-                                        <option value="18">
-                                            18 Yard — $350
+
+                                        <option value="18"
+                                                data-dumpster-option="18">
+                                            18 Yard — Loading price
                                         </option>
-                                        <option value="24">
-                                            24 Yard — $400
+
+                                        <option value="24"
+                                                data-dumpster-option="24">
+                                            24 Yard — Loading price
                                         </option>
-                                        <option value="30">
-                                            30 Yard — $450
+
+                                        <option value="30"
+                                                data-dumpster-option="30">
+                                            30 Yard — Loading price
                                         </option>
+
                                         <option value="unsure">
                                             Not sure yet
                                         </option>
+
                                     </select>
+
                                 </div>
 
+
+                                <!-- RENTAL PERIOD -->
                                 <div class="field">
+
                                     <label for="rentalPeriod">
                                         Rental Period
                                     </label>
 
                                     <select id="rentalPeriod"
                                             name="rental_period">
+
                                         <option value="7 days">
                                             7 Days (Standard)
                                         </option>
+
                                         <option value="More than 7 days">
                                             More Than 7 Days
                                         </option>
+
                                         <option value="Not sure">
                                             Not Sure
                                         </option>
+
                                     </select>
+
                                 </div>
 
+
+                                <!-- MATERIAL TYPE -->
                                 <div class="field">
+
                                     <label for="materials">
                                         Material Type *
                                     </label>
@@ -719,34 +805,47 @@
                                     <select id="materials"
                                             name="materials"
                                             required>
+
                                         <option value="">
                                             Select material
                                         </option>
+
                                         <option value="Household junk">
                                             Household Junk
                                         </option>
+
                                         <option value="Construction debris">
                                             Construction Debris
                                         </option>
+
                                         <option value="Renovation debris">
                                             Renovation Debris
                                         </option>
+
                                         <option value="Roofing materials">
                                             Roofing Materials
                                         </option>
+
                                         <option value="Yard waste">
                                             Yard Waste
                                         </option>
+
                                         <option value="Mixed debris">
                                             Mixed Debris
                                         </option>
+
                                         <option value="Other / need approval">
                                             Other / Not Sure
                                         </option>
+
                                     </select>
+
                                 </div>
 
+
+                                <!-- DELIVERY DATE -->
                                 <div class="field">
+
                                     <label for="deliveryDate">
                                         Preferred Delivery Date *
                                     </label>
@@ -755,37 +854,49 @@
                                            name="preferred_delivery_date"
                                            type="date"
                                            required>
+
                                 </div>
+
 
                                 <!-- DELIVERY TIME -->
                                 <fieldset class="wizard-time-options">
 
-                                    <legend>Delivery Time</legend>
+                                    <legend>
+                                        Delivery Time
+                                    </legend>
 
                                     <label class="wizard-radio">
+
                                         <input type="radio"
                                                id="timeAny"
                                                name="delivery_time_preference"
                                                value="anytime"
                                                checked>
+
                                         Any time that day
                                     </label>
 
                                     <label class="wizard-radio">
+
                                         <input type="radio"
                                                id="timeWindow"
                                                name="delivery_time_preference"
                                                value="window">
+
                                         Choose a delivery time window
                                     </label>
 
                                 </fieldset>
 
-                                <div id="timeWindowFields" hidden>
+
+                                <!-- TIME WINDOW -->
+                                <div id="timeWindowFields"
+                                     hidden>
 
                                     <div class="field-row">
 
                                         <div class="field">
+
                                             <label for="earliestTime">
                                                 Earliest Time *
                                             </label>
@@ -795,9 +906,12 @@
                                                    name="earliest_time"
                                                    step="900"
                                                    disabled>
+
                                         </div>
 
+
                                         <div class="field">
+
                                             <label for="latestTime">
                                                 Latest Time *
                                             </label>
@@ -807,16 +921,21 @@
                                                    name="latest_time"
                                                    step="900"
                                                    disabled>
+
                                         </div>
 
                                     </div>
+
 
                                     <p class="wizard-note">
                                         Your requested delivery window
                                         is subject to confirmation.
                                     </p>
+
                                 </div>
 
+
+                                <!-- PLACEMENT INSTRUCTIONS -->
                                 <div class="field"
                                      style="margin-top:22px;">
 
@@ -829,12 +948,13 @@
                                               rows="4"
                                               maxlength="1500"
                                               placeholder="Where should we place the dumpster?"></textarea>
+
                                 </div>
 
                             </div>
 
 
-                            <!-- WEEKLY TRASH PICKUP -->
+                            <!-- WEEKLY TRASH PICKUP FIELDS -->
                             <div id="trashFields"
                                  class="wizard-service-panel"
                                  hidden>
@@ -843,7 +963,10 @@
                                     WEEKLY TRASH PICKUP
                                 </p>
 
+
+                                <!-- START DATE -->
                                 <div class="field">
+
                                     <label for="trashStart">
                                         Preferred Date to Start Service *
                                     </label>
@@ -853,13 +976,19 @@
                                            type="date"
                                            required>
 
+
                                     <p class="wizard-note">
-                                        Weekly trash pickup is every Tuesday.
-                                        We'll confirm when service can begin.
+                                        Weekly trash pickup is every
+                                        Tuesday. We'll confirm when
+                                        service can begin.
                                     </p>
+
                                 </div>
 
+
+                                <!-- NUMBER OF CANS -->
                                 <div class="field">
+
                                     <label for="trashCans">
                                         Number of Trash Cans *
                                     </label>
@@ -871,6 +1000,15 @@
                                            step="1"
                                            placeholder="How many cans?"
                                            required>
+
+                                    <p class="wizard-note">
+                                        The advertised monthly rate
+                                        is subject to confirmation
+                                        for your requested number of cans.
+                                        Additional-can pricing:
+                                        <span data-price="trashService.additionalCan">—</span>.
+                                    </p>
+
                                 </div>
 
                             </div>
@@ -883,7 +1021,9 @@
                              data-step="3"
                              hidden>
 
-                            <p class="eyebrow">STEP 04</p>
+                            <p class="eyebrow">
+                                STEP 04
+                            </p>
 
                             <h2 class="wizard-title">
                                 Anything else?
@@ -894,7 +1034,10 @@
                                 review your request before sending.
                             </p>
 
+
+                            <!-- NOTES -->
                             <div class="field">
+
                                 <label for="message">
                                     Additional Notes
                                 </label>
@@ -904,28 +1047,39 @@
                                           rows="5"
                                           maxlength="3000"
                                           placeholder="Anything else we should know?"></textarea>
+
                             </div>
 
+
+                            <!-- REVIEW -->
                             <div class="wizard-summary">
-                                <h3>Request Summary</h3>
+
+                                <h3>
+                                    Request Summary
+                                </h3>
 
                                 <div id="requestReview">
                                     Your request details will appear here.
                                 </div>
+
                             </div>
+
 
                             <p class="wizard-note"
                                style="margin-top:20px;">
-                                This is a service request, not
-                                a confirmed booking or active trash
-                                subscription. Dumpsterrific will
-                                contact you to finalize arrangements.
+
+                                This is a service request,
+                                not a confirmed booking or
+                                active trash subscription.
+                                Dumpsterrific will contact
+                                you to finalize arrangements.
+
                             </p>
 
                         </div>
 
 
-                        <!-- FORM NAVIGATION -->
+                        <!-- NAVIGATION BUTTONS -->
                         <div class="wizard-navigation">
 
                             <button type="button"
@@ -950,6 +1104,8 @@
 
                         </div>
 
+
+                        <!-- FORM STATUS -->
                         <p id="formStatus"
                            class="form-note"
                            role="status"
@@ -965,13 +1121,17 @@
                          aria-live="polite"
                          hidden>
 
-                        <p class="eyebrow">REQUEST RECEIVED</p>
+                        <p class="eyebrow">
+                            REQUEST RECEIVED
+                        </p>
 
-                        <h2>Thank you!</h2>
+                        <h2>
+                            Thank you!
+                        </h2>
 
                         <p>
-                            Your service request was submitted
-                            successfully.
+                            Your service request was
+                            submitted successfully.
                         </p>
 
                         <p>
@@ -1003,53 +1163,78 @@
 
     <!-- FOOTER -->
     <footer class="site-footer">
+
         <div class="container">
 
             <div class="footer-grid">
 
                 <div>
+
                     <a href="index.html">
+
                         <img src="Web/Dumpsterrific Logo W.png"
                              data-full-logo
                              alt="Dumpsterrific"
                              class="footer-logo">
                     </a>
 
-                    <p>Big projects. Easy cleanup.</p>
-                    <p>Veteran-owned · Cowgill, Missouri</p>
+                    <p>
+                        Big projects. Easy cleanup.
+                    </p>
+
+                    <p>
+                        Veteran-owned · Braymer, Missouri
+                    </p>
                 </div>
 
+
                 <div>
+
                     <h3>Services</h3>
 
                     <nav class="footer-links">
-                        <a href="index.html">Home</a>
+
+                        <a href="index.html">
+                            Home
+                        </a>
+
                         <a href="index.html#rentals">
                             Dumpster Rentals
                         </a>
+
                         <a href="index.html#trash-service">
                             Weekly Trash Service
                         </a>
+
                         <a href="contact.html">
                             Request Service
                         </a>
+
                     </nav>
                 </div>
 
+
                 <div>
+
                     <h3>Get in Touch</h3>
 
                     <nav class="footer-links">
+
                         <a href="tel:+18162370629"
                            data-phone-link>
+
                             <span data-phone>
                                 (816) 237-0629
                             </span>
                         </a>
 
-                        <a href="#" data-email-link hidden>
+                        <a href="#"
+                           data-email-link
+                           hidden>
+
                             <span data-email></span>
                         </a>
+
                     </nav>
 
                     <div class="social-links"
@@ -1058,12 +1243,16 @@
 
             </div>
 
+
             <div class="footer-bottom">
+
                 © <span id="year"></span>
                 Dumpsterrific. All rights reserved.
+
             </div>
 
         </div>
+
     </footer>
 
     <script src="js/script.js" defer></script>

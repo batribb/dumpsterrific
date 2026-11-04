@@ -3,7 +3,7 @@
 
 /* ==========================================
    DUMPSTERRIFIC WEBSITE
-   Shared settings, navigation, request wizard
+   Shared configuration, pricing, forms
    ========================================== */
 
 const $ = (selector, root = document) =>
@@ -11,6 +11,106 @@ const $ = (selector, root = document) =>
 
 const $$ = (selector, root = document) =>
     Array.from(root.querySelectorAll(selector));
+
+
+/* ==========================================
+   SHARED PRICING
+   ========================================== */
+
+let sitePricing = null;
+
+function getPrice(path) {
+
+    if (!sitePricing) {
+        return undefined;
+    }
+
+    return path.split(".").reduce((current, key) => {
+
+        if (current == null) {
+            return undefined;
+        }
+
+        return current[key];
+
+    }, sitePricing);
+}
+
+
+function formatPrice(path) {
+
+    const amount = getPrice(path);
+
+    if (amount === null) {
+        return "Contact for pricing";
+    }
+
+    if (
+        typeof amount !== "number" ||
+        !Number.isFinite(amount) ||
+        amount < 0
+    ) {
+        return "Pricing unavailable";
+    }
+
+    if (path.endsWith("Percent")) {
+        return `${amount}%`;
+    }
+
+    const currency = sitePricing?.currency || "USD";
+
+    return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency,
+        minimumFractionDigits: amount % 1 === 0 ? 0 : 2,
+        maximumFractionDigits: 2
+    }).format(amount);
+}
+
+
+function dumpsterDescription(size) {
+
+    if (size === "unsure") {
+        return "Not sure yet";
+    }
+
+    if (!["18", "24", "30"].includes(size)) {
+        return "Not selected";
+    }
+
+    return (
+        `${size} Yard Dumpster - ` +
+        formatPrice(`dumpsters.${size}`)
+    );
+}
+
+
+function renderPricing() {
+
+    // Update all marked HTML prices.
+    $$("[data-price]").forEach(element => {
+
+        const path = element.dataset.price;
+
+        element.textContent = formatPrice(path);
+    });
+
+    // Update dumpster options in the request form.
+    ["18", "24", "30"].forEach(size => {
+
+        const option = $(
+            `[data-dumpster-option="${size}"]`
+        );
+
+        if (!option) {
+            return;
+        }
+
+        option.textContent =
+            `${size} Yard - ` +
+            formatPrice(`dumpsters.${size}`);
+    });
+}
 
 
 /* ==========================================
@@ -24,14 +124,20 @@ function setupNavigation() {
     const backdrop = $("#menuBackdrop");
     const closeButton = $("#closeMenu");
 
-    if (!menu || !toggle || !backdrop) return;
+    // Current design has no sidebar.
+    // Keep compatibility if one is added later.
+    if (!menu || !toggle || !backdrop) {
+        return;
+    }
 
     let previousFocus = null;
 
     function openMenu() {
+
         previousFocus = document.activeElement;
 
         menu.inert = false;
+
         menu.classList.add("open");
         backdrop.classList.add("visible");
 
@@ -39,10 +145,12 @@ function setupNavigation() {
         toggle.setAttribute("aria-expanded", "true");
 
         document.body.classList.add("menu-open");
+
         closeButton?.focus();
     }
 
     function closeMenu() {
+
         menu.classList.remove("open");
         backdrop.classList.remove("visible");
 
@@ -50,6 +158,7 @@ function setupNavigation() {
         toggle.setAttribute("aria-expanded", "false");
 
         document.body.classList.remove("menu-open");
+
         menu.inert = true;
 
         if (previousFocus instanceof HTMLElement) {
@@ -58,6 +167,7 @@ function setupNavigation() {
     }
 
     toggle.addEventListener("click", () => {
+
         if (menu.classList.contains("open")) {
             closeMenu();
         } else {
@@ -65,26 +175,39 @@ function setupNavigation() {
         }
     });
 
-    closeButton?.addEventListener("click", closeMenu);
-    backdrop.addEventListener("click", closeMenu);
+    closeButton?.addEventListener(
+        "click",
+        closeMenu
+    );
+
+    backdrop.addEventListener(
+        "click",
+        closeMenu
+    );
 
     document.addEventListener("keydown", event => {
 
-        if (!menu.classList.contains("open")) return;
+        if (!menu.classList.contains("open")) {
+            return;
+        }
 
         if (event.key === "Escape") {
             closeMenu();
             return;
         }
 
-        if (event.key !== "Tab") return;
+        if (event.key !== "Tab") {
+            return;
+        }
 
         const focusable = $$(
             'a[href], button:not([disabled])',
             menu
         );
 
-        if (!focusable.length) return;
+        if (!focusable.length) {
+            return;
+        }
 
         const first = focusable[0];
         const last = focusable[focusable.length - 1];
@@ -105,23 +228,11 @@ function setupNavigation() {
     });
 
     menu.inert = true;
-
-    const page = document.body.dataset.page;
-
-    $$("[data-page-link]").forEach(link => {
-        const active = link.dataset.pageLink === page;
-
-        link.classList.toggle("active", active);
-
-        if (active) {
-            link.setAttribute("aria-current", "page");
-        }
-    });
 }
 
 
 /* ==========================================
-   COPYRIGHT YEAR
+   COPYRIGHT
    ========================================== */
 
 function setupCopyright() {
@@ -141,12 +252,13 @@ function setupCopyright() {
 
 
 /* ==========================================
-   SHARED CONFIG.JSON
+   LOAD CONFIG.JSON
    ========================================== */
 
 async function loadConfig() {
 
     try {
+
         const url = new URL(
             "config.json",
             document.baseURI
@@ -158,22 +270,47 @@ async function loadConfig() {
 
         if (!response.ok) {
             throw new Error(
-                "Configuration HTTP " + response.status
+                "Configuration HTTP " +
+                response.status
             );
         }
 
         const config = await response.json();
 
+        if (
+            !config ||
+            typeof config !== "object" ||
+            !config.pricing ||
+            typeof config.pricing !== "object"
+        ) {
+            throw new Error(
+                "Pricing configuration is missing."
+            );
+        }
+
         applyConfig(config);
 
+        return config;
+
     } catch (error) {
+
         console.error(
-            "[Dumpsterrific] Unable to load config:",
+            "[Dumpsterrific] Configuration error:",
             error
         );
+
+        sitePricing = null;
+
+        renderPricing();
+
+        return null;
     }
 }
 
+
+/* ==========================================
+   APPLY CONFIGURATION
+   ========================================== */
 
 function applyConfig(config) {
 
@@ -182,7 +319,7 @@ function applyConfig(config) {
     const hours = config.hours || {};
     const socials = config.socials || {};
 
-    // Primary brand color
+    // BRAND COLOR
     if (
         /^#[0-9a-f]{6}$/i.test(
             branding.primaryColor || ""
@@ -194,7 +331,7 @@ function applyConfig(config) {
         );
     }
 
-    // Logos
+    // LOGOS
     const logos = {
         "[data-mini-logo]": branding.miniLogo,
         "[data-full-logo]": branding.logoWhite,
@@ -205,37 +342,42 @@ function applyConfig(config) {
 
     Object.entries(logos).forEach(([selector, path]) => {
 
-        if (!path) return;
+        if (!path) {
+            return;
+        }
 
         $$(selector).forEach(image => {
             image.src = path;
         });
     });
 
-    // Business name
+    // BUSINESS NAME
     $$("[data-business-name]").forEach(element => {
+
         element.textContent =
             business.name || "Dumpsterrific";
     });
 
-    // Service area
+    // SERVICE AREA
     $$("[data-service-area]").forEach(element => {
+
         element.textContent =
             business.serviceArea || "Northwest Missouri";
     });
 
-    // Phone
+    // PHONE
     const phone = String(
         business.phone || ""
     ).trim();
 
     $$("[data-phone], [data-business-phone]")
         .forEach(element => {
+
             element.textContent =
                 phone || "Phone unavailable";
         });
 
-    $$("[data-phone-link], [data-business-phone]")
+    $$("[data-phone-link]")
         .forEach(element => {
 
             if (phone) {
@@ -246,30 +388,42 @@ function applyConfig(config) {
             }
         });
 
-    // Email
+    // EMAIL
     const email = String(
         business.email || ""
     ).trim();
 
     $$("[data-email], [data-business-email]")
         .forEach(element => {
+
             element.textContent = email;
         });
 
-    $$("[data-email-link], [data-business-email]")
+    $$("[data-email-link]")
         .forEach(element => {
 
             if (email) {
+
                 element.href = "mailto:" + email;
                 element.hidden = false;
+
             } else {
+
                 element.removeAttribute("href");
                 element.hidden = true;
             }
         });
 
+    // BUSINESS HOURS
     renderBusinessHours(hours);
+
+    // SOCIAL LINKS
     renderSocialLinks(socials);
+
+    // PRICING
+    sitePricing = config.pricing;
+
+    renderPricing();
 }
 
 
@@ -307,6 +461,7 @@ function renderBusinessHours(hours) {
                     hours[day] || "Not listed";
 
                 row.append(label, value);
+
                 container.appendChild(row);
             });
         });
@@ -355,7 +510,7 @@ function renderSocialLinks(socials) {
 
 
 /* ==========================================
-   DATE AND TIME FORMATTING
+   DATE FORMATTING
    ========================================== */
 
 function ordinalSuffix(day) {
@@ -382,8 +537,13 @@ function formatDate(value) {
     const [year, month, day] =
         value.split("-").map(Number);
 
-    // Local noon avoids UTC date shifts.
-    const date = new Date(year, month - 1, day, 12);
+    // Local noon avoids UTC timezone shifts.
+    const date = new Date(
+        year,
+        month - 1,
+        day,
+        12
+    );
 
     if (
         date.getFullYear() !== year ||
@@ -422,8 +582,10 @@ function formatTime(value) {
         value.split(":").map(Number);
 
     if (
-        hour < 0 || hour > 23 ||
-        minute < 0 || minute > 59
+        hour < 0 ||
+        hour > 23 ||
+        minute < 0 ||
+        minute > 59
     ) {
         return "Invalid time";
     }
@@ -456,25 +618,15 @@ function todayISO() {
 }
 
 
-function dumpsterDescription(size) {
-
-    const options = {
-        "18": "18 Yard Dumpster - $350",
-        "24": "24 Yard Dumpster - $400",
-        "30": "30 Yard Dumpster - $450",
-        "unsure": "Not sure yet"
-    };
-
-    return options[size] || "Not selected";
-}
-
-
 /* ==========================================
-   REQUEST FORM HELPERS
+   FORM HELPERS
    ========================================== */
 
 function getValue(data, name) {
-    return String(data.get(name) || "").trim();
+
+    return String(
+        data.get(name) || ""
+    ).trim();
 }
 
 
@@ -482,7 +634,9 @@ function setFormStatus(message, error = false) {
 
     const status = $("#formStatus");
 
-    if (!status) return;
+    if (!status) {
+        return;
+    }
 
     status.textContent = message;
 
@@ -499,7 +653,10 @@ function getDeliverySchedule(data) {
     );
 
     if (
-        getValue(data, "delivery_time_preference") !== "window"
+        getValue(
+            data,
+            "delivery_time_preference"
+        ) !== "window"
     ) {
         return date + " | Any time";
     }
@@ -512,7 +669,10 @@ function getDeliverySchedule(data) {
         getValue(data, "latest_time")
     );
 
-    return date + " | " + earliest + " - " + latest;
+    return (
+        date + " | " +
+        earliest + " - " + latest
+    );
 }
 
 
@@ -527,22 +687,23 @@ function getServiceAddress(data) {
 
 
 /* ==========================================
-   FORMATTED FORMSPREE NOTIFICATIONS
+   FORMAT FORMSPREE EMAIL
    ========================================== */
 
 function buildRequestSummary(data) {
 
-    const value = name => getValue(data, name);
+    const value = name =>
+        getValue(data, name);
 
     const isTrash =
         value("service_type") === "trash";
 
-    const header = isTrash
+    const heading = isTrash
         ? "WEEKLY TRASH PICKUP SIGNUP"
         : "DUMPSTER RENTAL REQUEST";
 
     const lines = [
-        "DUMPSTERRIFIC - " + header,
+        "DUMPSTERRIFIC - " + heading,
         "======================================",
         "",
         "CUSTOMER INFORMATION",
@@ -563,7 +724,11 @@ function buildRequestSummary(data) {
 
         lines.push(
             "Service: Weekly Trash Pickup",
-            "Advertised Rate: $30 / Month",
+            "Advertised Rate: " +
+                formatPrice("trashService.monthly") +
+                " / Month",
+            "Additional Can Rate: " +
+                formatPrice("trashService.additionalCan"),
             "Pickup Day: Tuesday",
             "Preferred Start: " +
                 formatDate(value("trash_start_date")),
@@ -609,7 +774,10 @@ function buildRequestSummary(data) {
 function formspreeError(data, status) {
 
     if (status === 429) {
-        return "Too many requests. Please try again later.";
+        return (
+            "Too many requests. " +
+            "Please try again later."
+        );
     }
 
     if (data && Array.isArray(data.errors)) {
@@ -623,7 +791,10 @@ function formspreeError(data, status) {
         }
     }
 
-    if (data && typeof data.error === "string") {
+    if (
+        data &&
+        typeof data.error === "string"
+    ) {
         return data.error;
     }
 
@@ -635,22 +806,31 @@ function formspreeError(data, status) {
 
 
 /* ==========================================
-   MULTI-STEP SERVICE REQUEST WIZARD
+   FOUR-STEP REQUEST FORM
    ========================================== */
 
 function setupRequestWizard() {
 
     const form = $("#rentalForm");
 
-    if (!form || form.dataset.initialized === "true") {
+    if (
+        !form ||
+        form.dataset.initialized === "true"
+    ) {
         return;
     }
 
     form.dataset.initialized = "true";
 
-    const steps = $$(".wizard-step", form);
+    const steps = $$(
+        ".wizard-step",
+        form
+    );
 
-    const progressItems = $$(".wizard-progress-item", form);
+    const progressItems = $$(
+        ".wizard-progress-item",
+        form
+    );
 
     const nextButton = $("#wizardNext");
     const backButton = $("#wizardBack");
@@ -661,7 +841,9 @@ function setupRequestWizard() {
 
     const earliest = $("#earliestTime");
     const latest = $("#latestTime");
-    const timeWindowFields = $("#timeWindowFields");
+
+    const timeWindowFields =
+        $("#timeWindowFields");
 
     const deliveryDate = $("#deliveryDate");
     const trashStart = $("#trashStart");
@@ -677,30 +859,19 @@ function setupRequestWizard() {
         steps.length !== 4 ||
         !nextButton ||
         !backButton ||
-        !submitButton
+        !submitButton ||
+        !dumpsterPanel ||
+        !trashPanel
     ) {
-        console.error("Request wizard markup is incomplete.");
+        console.error(
+            "[Dumpsterrific] Request form markup is incomplete."
+        );
+
         return;
     }
 
     let currentStep = 0;
     let submitting = false;
-
-    // Track which fields are normally required.
-    [
-        dumpsterPanel,
-        trashPanel
-    ].forEach(panel => {
-
-        if (!panel) return;
-
-        $$("input, select, textarea", panel)
-            .forEach(field => {
-
-                field.dataset.requiredOriginally =
-                    field.required ? "true" : "false";
-            });
-    });
 
 
     /* --------------------------------------
@@ -717,12 +888,25 @@ function setupRequestWizard() {
 
 
     /* --------------------------------------
-       ENABLE/DISABLE SERVICE FIELDS
+       STORE ORIGINAL REQUIRED FIELDS
+       -------------------------------------- */
+
+    [dumpsterPanel, trashPanel].forEach(panel => {
+
+        $$("input, select, textarea", panel)
+            .forEach(field => {
+
+                field.dataset.requiredOriginally =
+                    field.required ? "true" : "false";
+            });
+    });
+
+
+    /* --------------------------------------
+       ENABLE / DISABLE CONDITIONAL FIELDS
        -------------------------------------- */
 
     function togglePanel(panel, enabled) {
-
-        if (!panel) return;
 
         panel.hidden = !enabled;
 
@@ -739,7 +923,7 @@ function setupRequestWizard() {
 
 
     /* --------------------------------------
-       DELIVERY TIME WINDOW
+       TIME WINDOW
        -------------------------------------- */
 
     function updateTimeWindow() {
@@ -754,15 +938,15 @@ function setupRequestWizard() {
 
         const useWindow =
             selectedService() === "dumpster" &&
-            $("#timeWindow")?.checked;
+            $("#timeWindow")?.checked === true;
 
         timeWindowFields.hidden = !useWindow;
 
         earliest.disabled = !useWindow;
         latest.disabled = !useWindow;
 
-        earliest.required = !!useWindow;
-        latest.required = !!useWindow;
+        earliest.required = useWindow;
+        latest.required = useWindow;
 
         earliest.setCustomValidity("");
         latest.setCustomValidity("");
@@ -773,7 +957,7 @@ function setupRequestWizard() {
 
         if (
             selectedService() !== "dumpster" ||
-            !$("#timeWindow")?.checked
+            $("#timeWindow")?.checked !== true
         ) {
             return true;
         }
@@ -789,9 +973,9 @@ function setupRequestWizard() {
             latest.value &&
             earliest.value >= latest.value
         ) {
+
             latest.setCustomValidity(
-                "Latest delivery time must be " +
-                "after earliest delivery time."
+                "Latest delivery time must be after earliest delivery time."
             );
 
             return false;
@@ -802,7 +986,7 @@ function setupRequestWizard() {
 
 
     /* --------------------------------------
-       CHANGE SERVICE
+       SELECT SERVICE
        -------------------------------------- */
 
     function updateService() {
@@ -824,27 +1008,33 @@ function setupRequestWizard() {
 
 
     serviceRadios.forEach(radio => {
+
         radio.addEventListener(
             "change",
             updateService
         );
     });
 
+
     $$(
         'input[name="delivery_time_preference"]',
         form
     ).forEach(radio => {
+
         radio.addEventListener(
             "change",
             updateTimeWindow
         );
     });
 
+
     [earliest, latest].forEach(input => {
+
         input?.addEventListener(
             "input",
             validateTimeWindow
         );
+
         input?.addEventListener(
             "change",
             validateTimeWindow
@@ -853,7 +1043,7 @@ function setupRequestWizard() {
 
 
     /* --------------------------------------
-       MINIMUM REQUESTED DATES
+       DATE MINIMUMS
        -------------------------------------- */
 
     function updateDateMinimums() {
@@ -871,42 +1061,52 @@ function setupRequestWizard() {
 
 
     /* --------------------------------------
-       PRESELECT VIA URL
+       PRESELECT FROM HOMEPAGE LINKS
        -------------------------------------- */
 
     const params = new URLSearchParams(
         window.location.search
     );
 
-    const requestedService = params.get("service");
-    const rental = params.get("rental") ||
-                   params.get("dumpster");
+    const requestedService =
+        params.get("service");
+
+    const rental =
+        params.get("rental") ||
+        params.get("dumpster");
 
     if (
         requestedService === "trash" ||
         requestedService === "dumpster"
     ) {
+
         const radio = $(
             `input[name="service_type"][value="${requestedService}"]`,
             form
         );
 
-        if (radio) radio.checked = true;
+        if (radio) {
+            radio.checked = true;
+        }
 
     } else if (
         ["18", "24", "30", "unsure"].includes(rental)
     ) {
+
         const radio = $(
             'input[name="service_type"][value="dumpster"]',
             form
         );
 
-        if (radio) radio.checked = true;
+        if (radio) {
+            radio.checked = true;
+        }
     }
 
     if (
         ["18", "24", "30", "unsure"].includes(rental)
     ) {
+
         const dumpsterSelect = $("#dumpster");
 
         if (dumpsterSelect) {
@@ -919,18 +1119,23 @@ function setupRequestWizard() {
 
 
     /* --------------------------------------
-       SHOW CURRENT STEP
+       SHOW A STEP
        -------------------------------------- */
 
     function showStep(stepNumber) {
 
         currentStep = Math.max(
             0,
-            Math.min(stepNumber, steps.length - 1)
+            Math.min(
+                stepNumber,
+                steps.length - 1
+            )
         );
 
         steps.forEach((step, index) => {
-            step.hidden = index !== currentStep;
+
+            step.hidden =
+                index !== currentStep;
         });
 
         progressItems.forEach((item, index) => {
@@ -946,15 +1151,28 @@ function setupRequestWizard() {
             );
 
             if (index === currentStep) {
-                item.setAttribute("aria-current", "step");
+
+                item.setAttribute(
+                    "aria-current",
+                    "step"
+                );
+
             } else {
-                item.removeAttribute("aria-current");
+
+                item.removeAttribute(
+                    "aria-current"
+                );
             }
         });
 
-        backButton.hidden = currentStep === 0;
-        nextButton.hidden = currentStep === 3;
-        submitButton.hidden = currentStep !== 3;
+        backButton.hidden =
+            currentStep === 0;
+
+        nextButton.hidden =
+            currentStep === 3;
+
+        submitButton.hidden =
+            currentStep !== 3;
 
         setFormStatus("");
 
@@ -965,16 +1183,21 @@ function setupRequestWizard() {
 
 
     /* --------------------------------------
-       VALIDATE A SINGLE STEP
+       VALIDATE A STEP
        -------------------------------------- */
 
     function validateStep(index) {
 
         const step = steps[index];
 
-        if (!step) return false;
+        if (!step) {
+            return false;
+        }
 
-        if (index === 0 && !selectedService()) {
+        if (
+            index === 0 &&
+            !selectedService()
+        ) {
 
             setFormStatus(
                 "Please select a service to continue.",
@@ -989,9 +1212,36 @@ function setupRequestWizard() {
             updateDateMinimums();
 
             if (!validateTimeWindow()) {
+
                 latest?.reportValidity();
+
                 return false;
             }
+
+            const dateField =
+                selectedService() === "trash"
+                    ? trashStart
+                    : deliveryDate;
+
+            if (
+                dateField &&
+                (
+                    !dateField.value ||
+                    dateField.value < todayISO() ||
+                    formatDate(dateField.value) === "Invalid date"
+                )
+            ) {
+
+                dateField.setCustomValidity(
+                    "Please select today or a future date."
+                );
+
+                dateField.reportValidity();
+
+                return false;
+            }
+
+            dateField?.setCustomValidity("");
         }
 
         const fields = $$(
@@ -1001,10 +1251,13 @@ function setupRequestWizard() {
 
         for (const field of fields) {
 
-            if (field.disabled) continue;
+            if (field.disabled) {
+                continue;
+            }
 
-            // Skip controls inside hidden panels.
-            if (field.closest("[hidden]")) continue;
+            if (field.closest("[hidden]")) {
+                continue;
+            }
 
             if (!field.checkValidity()) {
 
@@ -1020,43 +1273,80 @@ function setupRequestWizard() {
 
 
     /* --------------------------------------
-       REVIEW SUMMARY
+       CLEAR DATE ERRORS ON CHANGE
+       -------------------------------------- */
+
+    [deliveryDate, trashStart].forEach(field => {
+
+        field?.addEventListener("input", () => {
+            field.setCustomValidity("");
+        });
+
+        field?.addEventListener("change", () => {
+            field.setCustomValidity("");
+        });
+    });
+
+
+    /* --------------------------------------
+       REQUEST REVIEW ROWS
        -------------------------------------- */
 
     function addReviewRow(container, label, value) {
 
         const row = document.createElement("div");
-        row.className = "wizard-summary-row";
 
-        const labelElement = document.createElement("span");
+        row.className =
+            "wizard-summary-row";
+
+        const labelElement =
+            document.createElement("span");
+
         labelElement.textContent = label;
 
-        const valueElement = document.createElement("strong");
-        valueElement.textContent = value || "Not specified";
+        const valueElement =
+            document.createElement("strong");
 
-        row.append(labelElement, valueElement);
+        valueElement.textContent =
+            value || "Not specified";
+
+        row.append(
+            labelElement,
+            valueElement
+        );
+
         container.appendChild(row);
     }
 
+
+    /* --------------------------------------
+       RENDER REQUEST REVIEW
+       -------------------------------------- */
 
     function renderRequestReview() {
 
         const container = $("#requestReview");
 
-        if (!container) return;
+        if (!container) {
+            return;
+        }
 
         container.replaceChildren();
 
         const data = new FormData(form);
 
-        const value = name => getValue(data, name);
+        const value = name =>
+            getValue(data, name);
 
-        const isTrash = selectedService() === "trash";
+        const isTrash =
+            selectedService() === "trash";
 
         addReviewRow(
             container,
             "Service",
-            isTrash ? "Weekly Trash Pickup" : "Dumpster Rental"
+            isTrash
+                ? "Weekly Trash Pickup"
+                : "Dumpster Rental"
         );
 
         addReviewRow(
@@ -1083,12 +1373,14 @@ function setupRequestWizard() {
             getServiceAddress(data)
         );
 
+
         if (isTrash) {
 
             addReviewRow(
                 container,
                 "Monthly Price",
-                "$30 advertised"
+                formatPrice("trashService.monthly") +
+                " / Month"
             );
 
             addReviewRow(
@@ -1100,7 +1392,9 @@ function setupRequestWizard() {
             addReviewRow(
                 container,
                 "Preferred Start",
-                formatDate(value("trash_start_date"))
+                formatDate(
+                    value("trash_start_date")
+                )
             );
 
             addReviewRow(
@@ -1109,12 +1403,22 @@ function setupRequestWizard() {
                 value("trash_cans")
             );
 
+            addReviewRow(
+                container,
+                "Additional Can Pricing",
+                formatPrice(
+                    "trashService.additionalCan"
+                )
+            );
+
         } else {
 
             addReviewRow(
                 container,
                 "Dumpster",
-                dumpsterDescription(value("dumpster"))
+                dumpsterDescription(
+                    value("dumpster")
+                )
             );
 
             addReviewRow(
@@ -1138,88 +1442,142 @@ function setupRequestWizard() {
             addReviewRow(
                 container,
                 "Placement",
-                value("placement") || "Not specified"
+                value("placement") ||
+                "Not specified"
             );
         }
     }
 
 
     /* --------------------------------------
-       NEXT / BACK BUTTONS
+       NEXT AND BACK
        -------------------------------------- */
 
     nextButton.addEventListener("click", () => {
 
-        if (!validateStep(currentStep)) return;
+        if (!validateStep(currentStep)) {
+            return;
+        }
 
         showStep(currentStep + 1);
     });
 
+
     backButton.addEventListener("click", () => {
+
         showStep(currentStep - 1);
     });
 
 
     /* --------------------------------------
-       FORM SUBMISSION
+       SUBMIT TO FORMSPREE
        -------------------------------------- */
 
     form.addEventListener("submit", async event => {
 
         event.preventDefault();
 
-        if (submitting) return;
+        if (submitting) {
+            return;
+        }
 
-        // Verify every step before submitting.
+        // Ensure we have loaded current pricing.
+        if (!sitePricing) {
+
+            setFormStatus(
+                "Pricing is temporarily unavailable. " +
+                "Please refresh the page or call Dumpsterrific.",
+                true
+            );
+
+            return;
+        }
+
+        // Validate each step while it is visible.
         for (let index = 0; index < steps.length; index++) {
 
+            showStep(index);
+
             if (!validateStep(index)) {
-                showStep(index);
-                validateStep(index);
                 return;
             }
         }
 
+        // Return to final step.
+        showStep(3);
+
         const endpoint = form.action;
 
         if (
-            !endpoint.startsWith("https://formspree.io/f/") ||
-            endpoint.includes("REPLACE_WITH_FORM_ID")
+            !endpoint.startsWith(
+                "https://formspree.io/f/"
+            ) ||
+            endpoint.includes(
+                "REPLACE_WITH_FORM_ID"
+            )
         ) {
+
             setFormStatus(
-                "Formspree has not been configured yet.",
+                "Formspree has not been configured.",
                 true
             );
+
             return;
         }
 
         const data = new FormData(form);
-        const service = selectedService();
-        const customer = getValue(data, "name");
 
-        const isTrash = service === "trash";
+        const service = selectedService();
+
+        const customer = getValue(
+            data,
+            "name"
+        );
+
+        const isTrash =
+            service === "trash";
 
         const subject = isTrash
-            ? "Dumpsterrific - Trash Pickup Signup - " + customer
+            ? "Dumpsterrific - Trash Pickup Signup - " +
+                customer
             : "Dumpsterrific - Dumpster Request - " +
-                dumpsterDescription(getValue(data, "dumpster")) +
+                dumpsterDescription(
+                    getValue(data, "dumpster")
+                ) +
                 " - " + customer;
 
         const summary = buildRequestSummary(data);
 
-        // Submit the clean formatted notification.
+
+        // Clean payload with readable formatting.
         const payload = new FormData();
 
-        payload.append("subject", subject);
+        payload.append(
+            "subject",
+            subject
+        );
 
         payload.append(
             "Service Requested",
-            isTrash ? "Weekly Trash Pickup" : "Dumpster Rental"
+            isTrash
+                ? "Weekly Trash Pickup"
+                : "Dumpster Rental"
         );
 
-        payload.append("name", customer);
-        payload.append("email", getValue(data, "email"));
-        payload.append("phone", getValue(data, "phone"));
+        payload.append(
+            "name",
+            customer
+        );
+
+        payload.append(
+            "email",
+            getValue(data, "email")
+        );
+
+        payload.append(
+            "phone",
+            getValue(data, "phone")
+        );
 
         payload.append(
             "Service Request Details",
@@ -1231,14 +1589,20 @@ function setupRequestWizard() {
             getValue(data, "_gotcha")
         );
 
+
+        // Prevent duplicate submissions.
         submitting = true;
 
         submitButton.disabled = true;
-        submitButton.textContent = "Submitting...";
-
         backButton.disabled = true;
 
-        setFormStatus("Submitting your request...");
+        submitButton.textContent =
+            "Submitting...";
+
+        setFormStatus(
+            "Submitting your request..."
+        );
+
 
         try {
 
@@ -1254,15 +1618,20 @@ function setupRequestWizard() {
                 .catch(() => ({}));
 
             if (!response.ok) {
+
                 throw new Error(
-                    formspreeError(result, response.status)
+                    formspreeError(
+                        result,
+                        response.status
+                    )
                 );
             }
 
+            // Success
             form.hidden = true;
-            form.style.display = "none";
 
             if (successPanel) {
+
                 successPanel.hidden = false;
 
                 successPanel.scrollIntoView({
@@ -1278,25 +1647,31 @@ function setupRequestWizard() {
                 error
             );
 
-            setFormStatus(
+            const message =
                 error instanceof TypeError
                     ? "Unable to connect to Formspree. " +
-                      "Please check your connection and try again."
-                    : error.message,
+                      "Check your connection and try again."
+                    : error.message;
+
+            setFormStatus(
+                message,
                 true
             );
 
         } finally {
 
             submitting = false;
+
             submitButton.disabled = false;
-            submitButton.textContent = "Submit Request →";
             backButton.disabled = false;
+
+            submitButton.textContent =
+                "Submit Request →";
         }
     });
 
 
-    // Start with service selection.
+    // Start on the service selection page.
     showStep(0);
 }
 
@@ -1308,11 +1683,16 @@ function setupRequestWizard() {
 async function initialize() {
 
     setupNavigation();
+
     setupCopyright();
+
+    // Initialize the form immediately.
     setupRequestWizard();
 
+    // Load shared business information and pricing.
     await loadConfig();
 }
+
 
 if (document.readyState === "loading") {
 

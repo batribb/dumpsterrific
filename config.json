@@ -1,3 +1,4 @@
+
 {
   "business": {
     "name": "Dumpsterrific",
@@ -15,17 +16,45 @@
     "miniLogo": "Web/Mini Logo.png"
   },
   "hours": {
-    "Monday": "8:00 AM \u2013 5:00 PM",
-    "Tuesday": "8:00 AM \u2013 5:00 PM",
-    "Wednesday": "8:00 AM \u2013 5:00 PM",
-    "Thursday": "8:00 AM \u2013 5:00 PM",
-    "Friday": "8:00 AM \u2013 5:00 PM",
-    "Saturday": "Delivery & pickup available for an extra fee",
+    "Monday": "8:00 AM - 5:00 PM",
+    "Tuesday": "8:00 AM - 5:00 PM",
+    "Wednesday": "8:00 AM - 5:00 PM",
+    "Thursday": "8:00 AM - 5:00 PM",
+    "Friday": "8:00 AM - 5:00 PM",
+    "Saturday": "Delivery & pickup by arrangement (additional fee)",
     "Sunday": "Closed"
   },
   "socials": {
-    "facebook": "https://www.facebook.com/people/Dumpsterrific/61567362545169/",
+    "facebook": "",
     "instagram": "",
     "tiktok": ""
+  },
+  "pricing": {
+    "currency": "USD",
+    "dumpsters": {
+      "18": 350,
+      "24": 400,
+      "30": 450
+    },
+    "trashService": {
+      "monthly": 40,
+      "additionalCan": null
+    },
+    "fees": {
+      "overweightPerTon": 75,
+      "additionalDay": 20,
+      "relocationSameProperty": 100,
+      "relocationDifferentAddress": 150,
+      "failedTrip": 75,
+      "cancellation": 25,
+      "compactorFine": 250,
+      "reloadingPerHour": 150,
+      "latePaymentPerWeek": 25,
+      "creditCardPercent": 3,
+      "saturdayService": null,
+      "fuelSurcharge": null,
+      "tires": null,
+      "appliances": null
+    }
   }
 }
